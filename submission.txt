@@ -1,0 +1,81 @@
+Submission: Membuat ETL Pipeline Sederhana
+============================================
+
+Nama Project : Fashion Studio ETL Pipeline
+Kelas       : Belajar Fundamental Pemrosesan Data
+
+--------------------------------------------------
+Deskripsi
+--------------------------------------------------
+ETL pipeline ini mengekstrak data produk fashion dari website (Web scrapping)
+https://fashion-studio.dicoding.dev (50 halaman, ±1000 produk),
+membersihkan dan mentransformasi data, lalu hasilnya akan disimpan ke 3 tempat berikut:
+  1. File CSV        → products.csv
+  2. Google Sheets   → via Service Account (google-sheets-api.json)
+  3. PostgreSQL      → via SQLAlchemy (DB_URL env variable)
+
+--------------------------------------------------
+Struktur Proyek
+--------------------------------------------------
+submission-pemda/
+├── tests/
+│   ├── __init__.py
+│   ├── test_extract.py
+│   ├── test_transform.py
+│   └── test_load.py
+├── utils/
+│   ├── __init__.py
+│   ├── extract.py
+│   ├── transform.py
+│   └── load.py
+├── main.py
+├── requirements.txt
+├── submission.txt
+├── products.csv          (dihasilkan setelah pipeline dijalankan)
+└── google-sheets-api.json (service account key – isi dengan file Anda)
+
+--------------------------------------------------
+Cara Menjalankan Pipeline
+--------------------------------------------------
+1. Install dependencies:
+   pip install -r requirements.txt
+
+2. Jalankan pipeline:
+   python main.py
+
+   Opsional – simpan ke Google Sheets:
+   GOOGLE_SHEETS_ID=1pwsJuUcA_TGqtlYHfsmEW2z-RzY94Ijgjaor-60j7LI python main.py
+
+   Opsional – simpan ke PostgreSQL:
+   DB_URL=postgresql+psycopg2://user:pass@host:5432/dbname python main.py
+
+--------------------------------------------------
+Cara Menjalankan Unit Test + Coverage
+--------------------------------------------------
+Dari folder root proyek:
+  pytest tests/ --cov=utils --cov-report=term-missing
+
+--------------------------------------------------
+Fitur ETL
+--------------------------------------------------
+EXTRACT
+  - Scraping 50 halaman website fashion-studio.dicoding.dev
+  - Mengambil: Title, Price, Rating, Colors, Size, Gender
+  - Menambahkan kolom timestamp (waktu scraping)
+  - Error handling: retry otomatis, logging setiap error
+
+TRANSFORM
+  - Menghapus data invalid (Unknown Product, null, dll.)
+  - Konversi Price USD → IDR (kurs Rp16.000)
+  - Membersihkan prefix "Size:", "Gender:", "X Colors"
+  - Konversi tipe data: Price=float, Rating=float, Colors=int
+  - Menghapus duplikat
+
+LOAD
+  - CSV  : load_to_csv()
+  - Google Sheets : load_to_google_sheets()
+  - PostgreSQL    : load_to_postgresql()
+  - Setiap fungsi memiliki error handling tersendiri
+
+  URL Google Sheets :
+  https://docs.google.com/spreadsheets/d/1pwsJuUcA_TGqtlYHfsmEW2z-RzY94Ijgjaor-60j7LI/edit?usp=sharing
